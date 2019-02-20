@@ -65,9 +65,10 @@ func main() {
 		//make generic less code typed.
 		if emailCheck || pswdCheck {
 			fmt.Fprintf(w, "Error Code is -10 : Missing Data")
+			log.Printf(": %v failed to log in \n Empty Fields \n", email)
 			return
 			// find way to track number of attempts and send email potentially
-			log.Printf(": %v failed to log in \n Empty Fields \n")
+
 		}
 
 		//Mock data for testing
@@ -77,10 +78,10 @@ func main() {
 
 		if email == dbEmail && pswd == dbPwb {
 			fmt.Fprintln(w, "Sucessfully login")
-			log.Printf("%v has logged in", dbEmail) //usernames?
+			log.Printf("%v has logged in", email) //usernames?
 		} else {
 			fmt.Fprintln(w, "Failed Login")
-			log.Printf(": %v has failed to login", dbEmail)
+			log.Printf(": %v has failed to login", email)
 		}
 	})
 	http.ListenAndServe(":8080", mux)
