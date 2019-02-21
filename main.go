@@ -28,29 +28,28 @@ func main() {
 		emailConf = r.FormValue("eConf")
 		pswdConf = r.FormValue("passConf")
 
-		//uNameBool := helper.IsEmpty(userName)
-		emailBool := helper.IsEmpty(email)
-		pswdBool := helper.IsEmpty(pswd)
-		pswdConfBool := helper.IsEmpty(pswdConf)
-
 		//check for a return of true of IsEmpty
-		if emailBool || pswdBool || pswdConfBool { //add username later
+		if helper.IsEmpty(email) || helper.IsEmpty(pswd) || helper.IsEmpty(pswdConf) { //add username later
 			fmt.Fprintf(w, "ErrorCode is -10: There is an error  \n")
 			if len(email) == 0 {
-				log.Printf("No username, Failed to signup")
-				fmt.Fprintf(w, "There was no email entered, Try again") //change back to username check instead of email
+				log.Printf("No username, Failed to signup\n")
+				fmt.Fprintf(w, "There was no email entered, Try again\n") //change back to username check instead of email
+			} else if len(pswd) == 0 {
+				log.Printf("%v has failed to sign up, no password", email)
+				fmt.Fprintf(w, "There was no password entered, Try again\n")
 			} else {
 				log.Printf(": %v failed signup", email)
-				fmt.Fprint(w, "Potentian error: UserName already taken") //when checking for usernames
+				fmt.Fprint(w, "Potentian error: UserName already taken \n") //when checking for usernames
 			}
+			return
 		}
 
-		if pswd == pswdConf && email == emailConf {
+		if helper.Comparable(pswd, pswdConf) && helper.Comparable(email, emailConf) {
 			//This will be saved to database
 			//will use mock data for now
-			fmt.Fprintln(w, "Registration successfull")
+			fmt.Fprintf(w, "Registration successfull\n")
 		} else {
-			fmt.Fprint(w, "Passwords or Emails do not match")
+			fmt.Fprintf(w, "Passwords or Emails do not match\n")
 		}
 	})
 
@@ -61,13 +60,7 @@ func main() {
 		email = r.FormValue("email")   //data from the form
 		pswd = r.FormValue("password") //Data from the form
 
-		//IsEmpty Check
-		//put this stupid line into one line of code in the if statement. and eliminate the variable all together. when concept is done
-		emailBool := helper.IsEmpty(email)
-		pswdBool := helper.IsEmpty(pswd)
-
-		//make generic less code typed.
-		if emailBool || pswdBool {
+		if helper.IsEmpty(email) || helper.IsEmpty(pswd) {
 			fmt.Fprintf(w, "Error Code is -10 : Missing Data")
 			log.Printf(": %v failed to log in \n Empty Fields \n", email)
 			return
@@ -80,7 +73,7 @@ func main() {
 		dbPwb := "1234pass!" //temp
 		dbEmail := "Test@email.com"
 
-		if email == dbEmail && pswd == dbPwb {
+		if helper.Comparable(dbEmail, email) && helper.Comparable(dbPwb, pswd) {
 			fmt.Fprintln(w, "Sucessfully login")
 			log.Printf("%v has logged in", email) //usernames?
 		} else {

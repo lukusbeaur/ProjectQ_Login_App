@@ -7,3 +7,8 @@ func IsEmpty(data string) bool {
 		return false
 	}
 }
+
+//Comparable takes a generic type and compares a and b
+func Comparable(a interface{}, b interface{}) bool {
+	return a == b
+}
