@@ -16,13 +16,12 @@ func main() {
 	mux := http.NewServeMux()
 
 	//Sign up new user
-	mux.HandleFunc("/signup", func(w http.ResponseWriter, r *http.Request) { // still has issues. Automatic login
+	mux.HandleFunc("/signup", func(w http.ResponseWriter, r *http.Request) { 
 		r.ParseForm()
 
 		//call helper, checking if form is null
-		//make generic eventually and call each func as a list ? instead of hard coding
-
 		//data from the form
+		
 		email = r.FormValue("email")
 		pswd = r.FormValue("password")
 		emailConf = r.FormValue("eConf")
