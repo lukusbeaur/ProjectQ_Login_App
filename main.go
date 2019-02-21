@@ -4,66 +4,70 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	//helper "./helpers" fix this later fucking local package garbage
-	//adding a func in main.go calle isEmpty
+
+	helper "github.com/projects/ProjectQ_Login/ProjectQ_Login_App/helpers"
 )
 
 func main() {
-	userName, email, pswd, pswdConf := "", "", "", ""
+	//better way to do this?
+	//add username later
+	email, emailConf, pswd, pswdConf := "", "", "", ""
 
 	mux := http.NewServeMux()
 
 	//Sign up new user
-	mux.HandleFunc("/signup", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/signup", func(w http.ResponseWriter, r *http.Request) { // still has issues. Automatic login
 		r.ParseForm()
-
-		userName = r.FormValue("username")
-		email = r.FormValue("email")
-		pswd = r.FormValue("password")
-		pswdConf = r.FormValue("confirm")
 
 		//call helper, checking if form is null
 		//make generic eventually and call each func as a list ? instead of hard coding
-		//temp change - IsEmpty is now in main.go until local packages work
 
-		/*uNameCheck := helper.IsEmpty(userName)
-		emailCheck := helper.IsEmpty(email)
-		pswdCheck := helper.IsEmpty(pswd)
-		pswdConfCheck := helper.IsEmpty(pswdConf)*/
+		//data from the form
+		email = r.FormValue("email")
+		pswd = r.FormValue("password")
+		emailConf = r.FormValue("eConf")
+		pswdConf = r.FormValue("passConf")
 
-		uNameCheck := IsEmpty(userName)
-		emailCheck := IsEmpty(email)
-		pswdCheck := IsEmpty(pswd)
-		pswdConfCheck := IsEmpty(pswdConf)
+		//uNameBool := helper.IsEmpty(userName)
+		emailBool := helper.IsEmpty(email)
+		pswdBool := helper.IsEmpty(pswd)
+		pswdConfBool := helper.IsEmpty(pswdConf)
 
 		//check for a return of true of IsEmpty
-		if uNameCheck || emailCheck || pswdCheck || pswdConfCheck {
-			fmt.Fprintf(w, "ErrorCode is -10: There is an error")
-			log.Printf(": %v tried to log in and failed\n", userName)
+		if emailBool || pswdBool || pswdConfBool { //add username later
+			fmt.Fprintf(w, "ErrorCode is -10: There is an error  \n")
+			if len(email) == 0 {
+				log.Printf("No username, Failed to signup")
+				fmt.Fprintf(w, "There was no email entered, Try again") //change back to username check instead of email
+			} else {
+				log.Printf(": %v failed signup", email)
+				fmt.Fprint(w, "Potentian error: UserName already taken") //when checking for usernames
+			}
 		}
 
-		if pswd == pswdConf {
+		if pswd == pswdConf && email == emailConf {
 			//This will be saved to database
 			//will use mock data for now
 			fmt.Fprintln(w, "Registration successfull")
 		} else {
-			fmt.Fprint(w, "Passwords do not match.")
+			fmt.Fprint(w, "Passwords or Emails do not match")
 		}
 	})
 
 	//login section
-	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) { // concept proven
 		r.ParseForm()
 
 		email = r.FormValue("email")   //data from the form
 		pswd = r.FormValue("password") //Data from the form
 
 		//IsEmpty Check
-		emailCheck := IsEmpty(email)
-		pswdCheck := IsEmpty(pswd)
+		//put this stupid line into one line of code in the if statement. and eliminate the variable all together. when concept is done
+		emailBool := helper.IsEmpty(email)
+		pswdBool := helper.IsEmpty(pswd)
 
 		//make generic less code typed.
-		if emailCheck || pswdCheck {
+		if emailBool || pswdBool {
 			fmt.Fprintf(w, "Error Code is -10 : Missing Data")
 			log.Printf(": %v failed to log in \n Empty Fields \n", email)
 			return
@@ -85,13 +89,4 @@ func main() {
 		}
 	})
 	http.ListenAndServe(":8080", mux)
-}
-
-//IsEmpty returns if field is empty
-func IsEmpty(data string) bool {
-	if len(data) == 0 {
-		return true
-	} else {
-		return false
-	}
 }
