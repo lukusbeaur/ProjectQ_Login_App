@@ -1,84 +1,70 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
-	helper "github.com/projects/ProjectQ_Login/ProjectQ_Login_App/helpers"
+	"github.com/graphql-go/graphql"
 )
 
+//User starts the user object
+type User struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	//add info for sign up page
+}
+
 func main() {
-	//better way to do this?
-	//add username later
-	email, emailConf, pswd, pswdConf := "", "", "", ""
+	schema, _ := graphql.NewSchema(graphql.SchemaConfig{})
+	http.HandleFunc("/signin", func(w http.ResponseWriter, r *http.Request) {
+		results := graphql.Do(graphql.Params{
+			Schema:        schema,
+			RequestString: r.URL.Query().Get("query"),
+		})
+		json.NewEncoder(w).Encode(results)
 
-	mux := http.NewServeMux()
+		userType := graphql.NewObject(graphql.ObjectConfig{
+			Name: "User",
+			Fields: graphql.Fields{
+				"email": &graphql.Field{
+					Type: graphql.String,
+				},
+				"password": &graphql.Field{
+					Type: graphql.String,
+				},
+			},
+		})
 
-	//Sign up new user
-	mux.HandleFunc("/signup", func(w http.ResponseWriter, r *http.Request) { 
-		r.ParseForm()
-
-		//call helper, checking if form is null
-		//data from the form
-		
-		email = r.FormValue("email")
-		pswd = r.FormValue("password")
-		emailConf = r.FormValue("eConf")
-		pswdConf = r.FormValue("passConf")
-
-		//check for a return of true of IsEmpty
-		if helper.IsEmpty(email) || helper.IsEmpty(pswd) || helper.IsEmpty(pswdConf) { //add username later
-			fmt.Fprintf(w, "ErrorCode is -10: There is an error  \n")
-			if len(email) == 0 {
-				log.Printf("No username, Failed to signup\n")
-				fmt.Fprintf(w, "There was no email entered, Try again\n") //change back to username check instead of email
-			} else if len(pswd) == 0 {
-				log.Printf("%v has failed to sign up, no password", email)
-				fmt.Fprintf(w, "There was no password entered, Try again\n")
-			} else {
-				log.Printf(": %v failed signup", email)
-				fmt.Fprint(w, "Potentian error: UserName already taken \n") //when checking for usernames
-			}
-			return
-		}
-
-		if helper.Comparable(pswd, pswdConf) && helper.Comparable(email, emailConf) {
-			//This will be saved to database
-			//will use mock data for now
-			fmt.Fprintf(w, "Registration successfull\n")
-		} else {
-			fmt.Fprintf(w, "Passwords or Emails do not match\n")
-		}
+		rootQ := graphql.NewObject(graphql.ObjectConfig{
+			Name: "Query",
+			Fields: graphql.Fields{
+				"users": &graphql.Field{
+					Type: graphql.NewList(userType),
+					Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+						return nil, nil
+					},
+				},
+			},
+		})
+		fmt.Fprint(w, rootQ) //wtf is going on
 	})
 
-	//login section
-	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) { // concept proven
-		r.ParseForm()
+	http.ListenAndServe(":8080", nil)
 
-		email = r.FormValue("email")   //data from the form
-		pswd = r.FormValue("password") //Data from the form
+	//testing because i dont fucking get GRAPHQL lets a go..mario
 
-		if helper.IsEmpty(email) || helper.IsEmpty(pswd) {
-			fmt.Fprintf(w, "Error Code is -10 : Missing Data")
-			log.Printf(": %v failed to log in \n Empty Fields \n", email)
-			return
-			// find way to track number of attempts and send email potentially
+}
 
-		}
-
-		//Mock data for testing
-		//make this hidden eventually. make manditory password requirements
-		dbPwb := "1234pass!" //temp
-		dbEmail := "Test@email.com"
-
-		if helper.Comparable(dbEmail, email) && helper.Comparable(dbPwb, pswd) {
-			fmt.Fprintln(w, "Sucessfully login")
-			log.Printf("%v has logged in", email) //usernames?
-		} else {
-			fmt.Fprintln(w, "Failed Login")
-			log.Printf(": %v has failed to login", email)
-		}
-	})
-	http.ListenAndServe(":8080", mux)
+//Creating MockData ToDo:
+//replace this code with DB garbage.
+var user []User = []User{
+	User{
+		Email:    "test1@email.com",
+		Password: "password",
+	},
+	User{
+		Email:    "test2@email.com",
+		Password: "password1",
+	},
 }
