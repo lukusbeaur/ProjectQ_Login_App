@@ -1,0 +1,32 @@
+{
+    "1": {
+      "id": "1",
+      "email": "test1@email.com",
+      "password": "password1",
+      "usermame": "user1"
+    },
+    "2": {
+        "id": "2",
+        "email": "test2@email.com",
+        "password": "password2",
+        "usermame": "user2"
+      },
+    "3": {
+        "id": "3",
+        "email": "test3@email.com",
+        "password": "password3",
+        "usermame": "user3"
+      },
+    "4": {
+        "id": "4",
+        "email": "test4@email.com",
+        "password": "password4",
+        "usermame": "user4"
+      },
+    "5": {
+        "id": "5",
+        "email": "test5@email.com",
+        "password": "password5",
+        "usermame": "user5"
+      }
+  }

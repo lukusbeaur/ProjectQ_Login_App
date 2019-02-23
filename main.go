@@ -63,6 +63,28 @@ var rootQuery = graphql.NewObject(
 		},
 	})
 
+var userNameQuery = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "Query",
+		Fields: graphql.Fields{
+			"user": &graphql.Field{
+				Type: userType,
+				Args: graphql.FieldConfigArgument{
+					"email": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					emailQue, isOk := p.Args["email"].(string)
+					if isOk {
+						return data[emailQue], nil
+					}
+					return nil, nil
+				},
+			},
+		},
+	})
+
 var schema, _ = graphql.NewSchema(
 	graphql.SchemaConfig{
 		Query: rootQuery,
@@ -75,7 +97,7 @@ func executeQuery(query string, schema graphql.Schema) *graphql.Result {
 		RequestString: query,
 	})
 	if len(result.Errors) > 0 {
-		fmt.Printf("Wrong resilt, unexpected %v", result.Errors)
+		fmt.Printf("Wrong result, unexpected %v", result.Errors)
 	}
 	return result
 }
