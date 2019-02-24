@@ -45,8 +45,12 @@ var rootQuery = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Query",
 		Fields: graphql.Fields{
+			/* Get (read) single product by id
+			   http://localhost:8080/qraphql?query={product(id:1){name,info,price}}
+			*/
 			"user": &graphql.Field{
-				Type: userType,
+				Type:        userType,
+				Description: "Gets email, username, and password by ID",
 				Args: graphql.FieldConfigArgument{
 					"id": &graphql.ArgumentConfig{
 						Type: graphql.String,
@@ -55,9 +59,26 @@ var rootQuery = graphql.NewObject(
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					idQuery, isOk := p.Args["id"].(string)
 					if isOk {
-						return data[idQuery], nil
+						//return data[idQuery], nil
+						//trying to list all infomation with one Query
+
+						for _, userinfo := range data {
+							if string(userinfo.ID) == idQuery {
+								return userinfo, nil
+							}
+						}
 					}
 					return nil, nil
+				},
+			},
+			/* Get (read) product list
+			   http://localhost:8080/qraphql?query={list{id,username, email, password}}
+			*/
+			"list": &graphql.Field{
+				Type:        graphql.NewList(userType),
+				Description: "The the user information",
+				Resolve: func(Params graphql.ResolveParams) (interface{}, error) {
+					return data, nil
 				},
 			},
 		},
