@@ -84,6 +84,7 @@ var rootQuery = graphql.NewObject(
 		},
 	})
 
+//This was a test: trying to write a different query. disregard for the time being
 var userNameQuery = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Query",
